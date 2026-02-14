@@ -1,0 +1,11 @@
+# .dockerignore — keeps Docker build clean and fast
+
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+.git/
+*.pdf
+*.docx
+test_files/

@@ -92,7 +92,24 @@ class ResumeAnalyzer:
         except Exception as e:
             logger.info(f"Failed to analyze resume: {str(e)}")
             raise ValueError(f"Failed to analyze resume: {str(e)}")
-    
+
+        except Exception as e:
+            error_message = str(e)
+            
+            # Check for high demand / rate limit errors
+            if "503" in error_message or "high demand" in error_message.lower():
+                logger.warning("Gemini API experiencing high demand")
+                raise ValueError(
+                    "Our AI service is experiencing high demand right now. "
+                    "This usually resolves in a few seconds."
+                    "Please try again shortly."
+                )
+            # Check for rate limit
+            elif "429" in error_message or "rate limit" in error_message.lower():
+                logger.warning("Rate limit exceeded")
+                raise ValueError(
+                    "Too many requests. Please wait a moment and try again."
+                )
     
     def _parse_and_validate(self, response_text: str) -> Dict[str, Any]:
         """Parse and validate LLM's response"""

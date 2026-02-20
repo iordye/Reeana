@@ -33,7 +33,7 @@ def wake_up_backend():
     st.warning("**Hang tight! Our server is waking up from sleep mode.**")
     st.info(
         "Reeana uses a free hosting plan, so the server dozes off after inactivity. "
-        "**The first startup usually takes 20–30 seconds.** "
+        "**The first startup usually takes 30–50 seconds.** "
         "No need to refresh this page will automatically continue once it's ready!"
     )
 

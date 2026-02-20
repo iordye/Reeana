@@ -2,15 +2,77 @@
 
 import streamlit as st
 import requests
-
+import time
 
 API_URL = "https://reeana.onrender.com/analyze"
+HEALTH_URL = "https://reeana.onrender.com/health"
 
 # ── Page config ──
 st.set_page_config(
     page_title="Reeana - Resume Analyzer",
     layout="centered"
 )
+
+# ── Server Wake-Up Check ──
+def wake_up_backend():
+    """Check if backend is awake. If not, show friendly message and wait."""
+
+    if st.session_state.get("backend_ready"):
+        return
+
+    # Quick check — is it already awake?
+    try:
+        r = requests.get(HEALTH_URL, timeout=5)
+        if r.status_code == 200:
+            st.session_state.backend_ready = True
+            return
+    except requests.exceptions.RequestException:
+        pass  # Server is sleeping, fall through to wake-up UI
+
+    # Show wake-up UI
+    st.warning("⏳ **Hang tight! Our server is waking up from sleep mode.**")
+    st.info(
+        "Reeana uses a free hosting plan, so the server dozes off after inactivity. "
+        "**The first startup usually takes 20–30 seconds.** "
+        "No need to refresh this page will automatically continue once it's ready!"
+    )
+
+    progress_bar = st.progress(0, text="Waking up server...")
+    status_text = st.empty()
+
+    max_wait_seconds = 90
+    interval = 3
+    steps = max_wait_seconds // interval
+
+    for i in range(steps):
+        time.sleep(interval)
+        elapsed = (i + 1) * interval
+        progress = min(int((i + 1) / steps * 95), 95)
+        progress_bar.progress(progress, text=f"Still warming up... ({elapsed}s elapsed)")
+        status_text.caption(f"Attempt {i + 1} of {steps} — checking if server is ready...")
+
+        try:
+            r = requests.get(HEALTH_URL, timeout=5)
+            if r.status_code == 200:
+                progress_bar.progress(100, text="Server is ready!")
+                status_text.empty()
+                st.success("Server is awake! Loading Reeana now...")
+                time.sleep(1.5)
+                st.session_state.backend_ready = True
+                st.rerun()
+                return
+        except requests.exceptions.RequestException:
+            continue
+
+    # Timed out after 90 seconds
+    st.error(
+        "❌ The server took too long to respond. "
+        "Please **refresh the page** and try again. If the issue persists, check back in a few minutes."
+    )
+    st.stop()
+
+# ── Run wake-up check before anything else ──
+wake_up_backend()
 
 st.title("Reeana")
 st.write("Upload your resume and specify your target job role to get AI-powered feedback.")

@@ -30,7 +30,7 @@ def wake_up_backend():
         pass  # Server is sleeping, fall through to wake-up UI
 
     # Show wake-up UI
-    st.warning("⏳ **Hang tight! Our server is waking up from sleep mode.**")
+    st.warning("**Hang tight! Our server is waking up from sleep mode.**")
     st.info(
         "Reeana uses a free hosting plan, so the server dozes off after inactivity. "
         "**The first startup usually takes 20–30 seconds.** "
@@ -66,7 +66,7 @@ def wake_up_backend():
 
     # Timed out after 90 seconds
     st.error(
-        "❌ The server took too long to respond. "
+        "The server took too long to respond. "
         "Please **refresh the page** and try again. If the issue persists, check back in a few minutes."
     )
     st.stop()

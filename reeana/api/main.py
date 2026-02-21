@@ -45,7 +45,7 @@ async def analyze_resume(file: UploadFile = File(...), job_role: str = Form("gen
 
     try:
         # Delegate EVERYTHING to the orchestrator
-        result = resume_orchestrator.run(file, job_role=job_role)
+        result = await resume_orchestrator.run(file, job_role=job_role)
         return result
 
     except HTTPException as e:
